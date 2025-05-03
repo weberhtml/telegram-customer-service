@@ -14,7 +14,7 @@ PHONE, DESCRIPTION = range(2)
 
 # Replace with your actual values
 TELEGRAM_BOT_TOKEN = "7907696558:AAETzUUyY9fRfSavBWlDQ927wgJiw6BkIIM"
-OWNER_USERNAME = "ismoilov1202"
+OWNER_USERNAME = "@ismoilov1202"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the conversation and ask for phone number."""
