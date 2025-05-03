@@ -75,24 +75,30 @@ async def description_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     )
     
     try:
-        # Forward the information to the owner
+        # First try sending to username
         await context.bot.send_message(chat_id=f"@{OWNER_USERNAME}", text=owner_message)
         logger.info(f"Information forwarded to owner from user {user.id}")
-        
-        # Confirm to the user
-        await update.message.reply_text(
-            "Thank you for providing all the information! Your request has been forwarded to our team.\n\n"
-            "We'll review your requirements and get back to you soon.\n\n"
-            "If you have any additional questions, feel free to message us again."
-        )
-        
-    except Exception as e:
-        logger.error(f"Error forwarding information to owner: {e}")
-        await update.message.reply_text(
-            "Thank you for providing all the information! Your request has been received.\n\n"
-            "We'll review your requirements and get back to you soon.\n\n"
-            "If you have any additional questions, feel free to message us again."
-        )
+    except Exception as username_error:
+        logger.error(f"Error sending to username: {username_error}")
+        try:
+            # If username fails, try sending directly to the OWNER_USERNAME without @ symbol
+            await context.bot.send_message(chat_id=OWNER_USERNAME, text=owner_message)
+            logger.info(f"Information forwarded to owner ID from user {user.id}")
+        except Exception as id_error:
+            logger.error(f"Error sending to owner: {id_error}")
+            # If both methods fail, save the message to a file
+            with open("customer_requests.txt", "a", encoding="utf-8") as file:
+                file.write(f"\n\n--- NEW REQUEST {user.id} ---\n")
+                file.write(owner_message)
+                file.write("\n--- END REQUEST ---\n")
+            logger.info(f"Information saved to file from user {user.id}")
+    
+    # Confirm to the user
+    await update.message.reply_text(
+        "Thank you for providing all the information! Your request has been received.\n\n"
+        "We'll review your requirements and get back to you soon.\n\n"
+        "If you have any additional questions, feel free to message us again."
+    )
     
     # Clear user data
     context.user_data.clear()
